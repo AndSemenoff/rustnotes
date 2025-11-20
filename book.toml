@@ -1,0 +1,34 @@
+[book]
+authors = ["Семенов Андрей"]
+description = "Заметки о языке Rust и всем, что с ним связано."
+language = "ru"
+src = "src"
+title = "Заметки о Rust"
+
+[rust]
+edition = "2024"
+
+[build]
+use-default-preprocessors = true  # use the default preprocessors
+
+[output.html]
+default-theme = "Rust"
+mathjax-support = true
+# hash-files = true
+additional-css = ["src/custom.css"]
+input-404 = "not-found.md"
+git-repository-url = "https://github.com/andsemenoff/rustnotes"
+git-repository-icon = "fab-github"
+
+[output.html.fold]
+enable = false    # whether or not to enable section folding
+level = 0         # the depth to start folding
+
+[output.html.print]
+enable = true    # include support for printable output
+page-break = true # insert page-break after each chapter
+
+
+[preprocessor.index]
+
+[preprocessor.links]

@@ -1,0 +1,33 @@
+name: Deploy mdBook to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Или master, в зависимости от названия вашей основной ветки
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Разрешаем менять содержимое (для пуша в ветку gh-pages)
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v6.0.0  # https://github.com/marketplace/actions/checkout
+
+      # Установка mdbook
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: 'latest'
+
+      # Сборка книги (создаст папку book/)
+      - run: mdbook build
+
+      # Публикация папки book/ в ветку gh-pages
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./book
