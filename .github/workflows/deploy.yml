@@ -15,6 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.0  # https://github.com/marketplace/actions/checkout
 
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+                
+      - name: install mdbook-admonish
+        run: cargo install mdbook-admonish
+
       # Установка mdbook
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v2
@@ -22,9 +31,6 @@ jobs:
           mdbook-version: 'latest'
       # Сборка книги (создаст папку book/)
       - run: mdbook build
-
-      - name: install mdbook-admonish
-        run: cargo install mdbook-admonish
 
       # Публикация папки book/ в ветку gh-pages
       - name: Deploy
