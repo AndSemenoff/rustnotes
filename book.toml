@@ -15,7 +15,7 @@ use-default-preprocessors = true  # use the default preprocessors
 default-theme = "Rust"
 mathjax-support = true
 # hash-files = true
-additional-css = ["src/custom.css"]
+additional-css = ["src/custom.css", "./mdbook-admonish.css"]
 input-404 = "not-found.md"
 git-repository-url = "https://github.com/andsemenoff/rustnotes"
 git-repository-icon = "fab-github"
@@ -28,7 +28,12 @@ level = 0         # the depth to start folding
 enable = true    # include support for printable output
 page-break = true # insert page-break after each chapter
 
+[preprocessor.indexing]
 
 [preprocessor.index]
 
 [preprocessor.links]
+
+[preprocessor.admonish]
+command = "mdbook-admonish"
+assets_version = "3.1.0" # do not edit: managed by `mdbook-admonish install`

@@ -20,13 +20,15 @@ jobs:
         uses: peaceiris/actions-mdbook@v2
         with:
           mdbook-version: 'latest'
-
       # Сборка книги (создаст папку book/)
       - run: mdbook build
 
+      - name: install mdbook-admonish
+        run: cargo install mdbook-admonish
+
       # Публикация папки book/ в ветку gh-pages
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4   # https://github.com/peaceiris/actions-gh-pages
         if: ${{ github.ref == 'refs/heads/main' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
