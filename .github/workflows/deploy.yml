@@ -26,11 +26,6 @@ jobs:
         run: |
           cargo binstall -y mdbook
 
-      - name: Setup | Install | mdbook-admonish
-        run: |
-          cargo binstall -y mdbook-admonish
-          mdbook-admonish install .
-
       - name: Build | Docs
         run: |
           mdbook build
