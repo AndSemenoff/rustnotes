@@ -1,10 +1,10 @@
 # Введение
 
-```admonish example title = "Пример"
+```admonish example
 Пример тоже на русском!
 ```
 
-```admonish title = "Примечание", collapsible=true
+```admonish, collapsible=true
 Примечание на русском
 
 Несколько строк
