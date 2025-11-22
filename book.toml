@@ -9,7 +9,7 @@ title = "Заметки о Rust"
 edition = "2024"
 
 [build]
-use-default-preprocessors = true  # use the default preprocessors
+#use-default-preprocessors = true  # use the default preprocessors
 
 [output.html]
 default-theme = "Rust"
