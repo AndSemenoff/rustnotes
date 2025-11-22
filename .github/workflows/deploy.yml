@@ -25,7 +25,7 @@ jobs:
         run: cargo install mdbook-admonish --vers "1.20.0" --locked
 
       - name: Setup mdbook-admonish
-        run: mdbook-admonish install ./book
+        run: mdbook-admonish install
 
       # Установка mdbook
       - name: Setup mdBook
