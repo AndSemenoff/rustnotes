@@ -20,9 +20,12 @@ jobs:
 
       - name: Cache Cargo dependencies
         uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
-                
+
       - name: install mdbook-admonish
-        run: cargo install mdbook-admonish
+        run: cargo install mdbook-admonish --vers "1.20.0" --locked
+
+      - name: Setup mdbook-admonish
+        run: mdbook-admonish install ./book
 
       # Установка mdbook
       - name: Setup mdBook
