@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Введение - Заметки о Rust</title>
+        <title>Итераторы - Заметки о Rust</title>
 
 
         <!-- Custom HTML head -->
@@ -29,7 +29,6 @@
 
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="src/custom-d3b98cb8.css">
-        <link rel="stylesheet" href="./mdbook-admonish.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -39,10 +38,10 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-7fcee68d.js";
+            window.path_to_searchindex_js = "searchindex-3308c59c.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-f1235e7b.js"></script>
+        <script src="toc-ec1eabcd.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -181,20 +180,91 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="введение"><a class="header" href="#введение">Введение</a></h1>
-<pre><code class="language-admonish example">Пример тоже на русском!
-</code></pre>
-<pre><code class="language-admonish success title=&quot;&quot;">Блок без заголовка, тоже возможен.
-</code></pre>
-<p>{{i:Rust}} - это круто!</p>
-<p>{{i:Заимствование}} - это термин</p>
+                        <h1 id="итераторы-iterators"><a class="header" href="#итераторы-iterators">Итераторы (Iterators)</a></h1>
+<p>Итератор — это шаблон проектирования, который позволяет последовательно обрабатывать элементы. В Rust итераторы <strong>ленивы</strong> (lazy). Это значит, что создание итератора не делает ничего, пока вы не вызовете метод, который его “потребит”.</p>
+<p>Все итераторы реализуют типаж <code>Iterator</code>:</p>
+<pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Iterator {
+    type Item;
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;;
+    // ... множество методов по умолчанию
+}
+<span class="boring">}</span></code></pre>
+<h3 id="создание-и-использование"><a class="header" href="#создание-и-использование">Создание и использование</a></h3>
+<pre class="playground"><code class="language-rust edition2024">fn main() {
+    let v1 = vec![1, 2, 3];
+
+    // Создание итератора (пока ничего не происходит)
+    let v1_iter = v1.iter();
+
+    // Использование в цикле for (цикл неявно вызывает .next())
+    for val in v1_iter {
+        println!("Значение: {}", val);
+    }
+}</code></pre>
+<h3 id="три-основных-способа-создания-итератора-из-коллекции"><a class="header" href="#три-основных-способа-создания-итератора-из-коллекции">Три основных способа создания итератора из коллекции:</a></h3>
+<ul>
+<li><code>iter()</code> — создает итератор по неизменяемым ссылкам (<code>&amp;T</code>).</li>
+<li><code>iter_mut()</code> — создает итератор по изменяемым ссылкам (<code>&amp;mut T</code>).</li>
+<li><code>into_iter()</code> — создает итератор, забирающий владение (<code>T</code>). Коллекция больше недоступна.</li>
+</ul>
+<h3 id="методы-итераторов"><a class="header" href="#методы-итераторов">Методы итераторов</a></h3>
+<p>Методы делятся на две категории:</p>
+<p><strong>1. Потребляющие адаптеры (Consuming Adapters)</strong></p>
+<p>Эти методы вызывают next и “съедают” итератор, возвращая какое-то значение.</p>
+<ul>
+<li><code>sum()</code> — суммирует элементы.</li>
+<li><code>collect()</code> — собирает элементы в новую коллекцию (например, Vec).</li>
+<li><code>count()</code> — возвращает количество элементов.</li>
+</ul>
+<pre class="playground"><code class="language-rust edition2024"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let v1 = vec![1, 2, 3];
+let total: i32 = v1.iter().sum(); // 6
+<span class="boring">}</span></code></pre>
+<p><strong>2. Адаптеры итераторов (Iterator Adapters)</strong></p>
+<p>Эти методы трансформируют итератор в другой итератор. Поскольку итераторы ленивы, нужно вызвать потребляющий метод в конце, чтобы запустить вычисления.</p>
+<ul>
+<li><code>map()</code> — преобразует каждый элемент.</li>
+<li><code>filter()</code> — оставляет элементы, соответствующие условию.</li>
+<li><code>zip()</code> — объединяет два итератора в один (пары).</li>
+</ul>
+<pre class="playground"><code class="language-rust edition2024">fn main() {
+    let v1: Vec&lt;i32&gt; = vec![1, 2, 3];
+
+    // map ленив, поэтому сам по себе он ничего не сделает.
+    // Нам нужен collect, чтобы собрать результаты.
+    let v2: Vec&lt;_&gt; = v1.iter().map(|x| x + 1).collect();
+
+    println!("{:?}", v2); // [2, 3, 4]
+}</code></pre>
+<h3 id="сложные-цепочки-chaining"><a class="header" href="#сложные-цепочки-chaining">Сложные цепочки (Chaining)</a></h3>
+<p>Сила итераторов в возможности объединять адаптеры в читаемые цепочки:</p>
+<pre class="playground"><code class="language-rust edition2024">fn main() {
+    let numbers = vec![1, 2, 3, 4, 5, 6];
+
+    let result: Vec&lt;i32&gt; = numbers.into_iter()
+        .filter(|x| x % 2 == 0) // Оставляем только четные: 2, 4, 6
+        .map(|x| x * x)         // Возводим в квадрат: 4, 16, 36
+        .take(2)                // Берем только первые два: 4, 16
+        .collect();
+
+    println!("{:?}", result); // [4, 16]
+}</code></pre>
+<h3 id="производительность"><a class="header" href="#производительность">Производительность</a></h3>
+<p>Итераторы в Rust — это абстракции с нулевой стоимостью (zero-cost abstractions).</p>
+<p>Это означает, что использование высокоуровневых конструкций (вроде map или filter) компилируется в такой же быстрый машинный код, как если бы вы написали низкоуровневый цикл вручную. Зачастую итераторы работают даже быстрее циклов, так как компилятору проще оптимизировать проверки границ массивов.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="io_project.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
 
-                            <a rel="next prefetch" href="about.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="сlosures.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -204,8 +274,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="io_project.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
 
-                    <a rel="next prefetch" href="about.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="сlosures.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
