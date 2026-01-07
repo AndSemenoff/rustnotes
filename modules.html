@@ -38,7 +38,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-7af86e67.js";
+            window.path_to_searchindex_js = "searchindex-c037574f.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ec1eabcd.js"></script>
@@ -181,6 +181,76 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="модули-и-крейты"><a class="header" href="#модули-и-крейты">Модули и крейты</a></h1>
+<p>Система модулей в Rust помогает организовать код, управлять его публичностью (инкапсуляцией) и областью видимости имен.</p>
+<p>Основные термины:</p>
+<ul>
+<li><strong>Пакеты (Packages)</strong>: Функционал Cargo, позволяющий собирать, тестировать и делиться крейтами.</li>
+<li><strong>Крейты (Crates)</strong>: Дерево модулей, которое создает библиотеку или исполняемый файл.</li>
+<li><strong>Модули (Modules)</strong> и <strong>use</strong>: Позволяют управлять структурой, областью видимости и приватностью путей.</li>
+<li><strong>Пути (Paths)</strong>: Способ именования элементов (структур, функций, модулей).</li>
+</ul>
+<h3 id="крейты-crates"><a class="header" href="#крейты-crates">Крейты (Crates)</a></h3>
+<p>Крейт — это минимальный объем кода, который компилятор Rust рассматривает за один раз.</p>
+<ol>
+<li>Binary crate (исполняемый): Имеет функцию main и компилируется в исполняемый файл.</li>
+<li>Library crate (библиотечный): Не имеет main, предоставляет функционал для использования в других проектах.</li>
+</ol>
+<h3 id="модули-modules"><a class="header" href="#модули-modules">Модули (Modules)</a></h3>
+<p>Модули позволяют группировать код внутри крейта для удобства чтения и повторного использования.</p>
+<pre><code class="language-rust ignore">mod front_of_house {
+    pub mod hosting {
+        pub fn add_to_waitlist() {}
+    }
+}
+
+pub fn eat_at_restaurant() {
+    // Абсолютный путь
+    crate::front_of_house::hosting::add_to_waitlist();
+
+    // Относительный путь
+    front_of_house::hosting::add_to_waitlist();
+}</code></pre>
+<h3 id="приватность-privacy"><a class="header" href="#приватность-privacy">Приватность (Privacy)</a></h3>
+<p>В Rust все элементы (функции, методы, структуры, модули) по умолчанию приватны. Родительские модули не могут использовать приватные элементы дочерних модулей, но дочерние модули могут использовать элементы своих предков.
+Используйте ключевое слово pub, чтобы сделать элемент публичным.</p>
+<h3 id="использование-ключевого-слова-use"><a class="header" href="#использование-ключевого-слова-use">Использование ключевого слова <code>use</code></a></h3>
+<p>Чтобы не писать длинные пути каждый раз, можно «привнести» путь в область видимости.</p>
+<pre><code class="language-rust ignore">mod front_of_house {
+    pub mod hosting {
+        pub fn add_to_waitlist() {}
+    }
+}
+
+use crate::front_of_house::hosting;
+
+pub fn eat_at_restaurant() {
+    hosting::add_to_waitlist();
+}</code></pre>
+<h4 id="идиоматические-пути-use"><a class="header" href="#идиоматические-пути-use">Идиоматические пути <code>use</code></a></h4>
+<p>Для <strong>функций</strong>: принято импортировать родительский модуль (как в примере выше), чтобы было понятно, что функция не локальная.</p>
+<p>Для <strong>структур</strong> и <strong>перечислений</strong>: принято указывать полный путь до самого типа.</p>
+<pre class="playground"><code class="language-rust edition2024">use std::collections::HashMap;
+
+fn main() {
+    let mut map = HashMap::new();
+    map.insert(1, 2);
+}</code></pre>
+<h3 id="разделение-модулей-на-разные-файлы"><a class="header" href="#разделение-модулей-на-разные-файлы">Разделение модулей на разные файлы</a></h3>
+<p>Когда модуль становится большим, его выносят в отдельный файл.</p>
+<p>В <code>src/lib.rs</code> или <code>src/main.rs</code> объявляем модуль:</p>
+<pre><code class="language-rust ignore">mod front_of_house;</code></pre>
+<p>Создаем файл <code>src/front_of_house.rs</code> и переносим туда содержимое:</p>
+<pre><code class="language-rust ignore">pub mod hosting {
+    pub fn add_to_waitlist() {}
+}</code></pre>
+<p>Если нужно вынести <code>hosting</code> еще глубже, создаем папку <code>src/front_of_house/</code> и файл <code>src/front_of_house/hosting.rs</code>.</p>
+<h4 id="полезные-сокращения"><a class="header" href="#полезные-сокращения">Полезные сокращения</a></h4>
+<ul>
+<li><code>as</code>: создание псевдонима (например, use std::fmt::Result as FmtResult;).</li>
+<li><code>pub use</code>: реэкспорт (позволяет пользователям вашей библиотеки обращаться к коду по более удобному пути).</li>
+<li><code>{}</code>: группировка путей (например, use std::{cmp::Ordering, io};).</li>
+<li><code>*</code>: оператор “глоб” (импорт всех публичных элементов, использовать осторожно).</li>
+</ul>
 
                     </main>
 
