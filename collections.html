@@ -38,7 +38,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-3308c59c.js";
+            window.path_to_searchindex_js = "searchindex-7af86e67.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ec1eabcd.js"></script>
@@ -181,6 +181,137 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="общие-коллекции"><a class="header" href="#общие-коллекции">Общие коллекции</a></h1>
+<p>В отличие от массивов и кортежей, данные в коллекциях хранятся в куче (heap), что означает, что объем данных не обязан быть известен на этапе компиляции и может меняться в процессе выполнения программы.</p>
+<p>Три наиболее часто используемые коллекции:</p>
+<ol>
+<li>Вектор (Vec<t>) — позволяет хранить список значений одного типа подряд.</t></li>
+<li>Строка (String) — коллекция символов (текст).</li>
+<li>Хеш-карта (HashMap&lt;K, V&gt;) — позволяет хранить значения, связывая их с определенным ключом (ассоциативный массив).</li>
+</ol>
+<h3 id="вектор-vect"><a class="header" href="#вектор-vect">Вектор (<code>Vec&lt;T&gt;</code>)</a></h3>
+<p>Векторы позволяют хранить более одного значения в одной структуре данных, располагая их в памяти друг за другом. Векторы могут хранить значения только одного типа.</p>
+<h4 id="создание-и-обновление"><a class="header" href="#создание-и-обновление">Создание и обновление</a></h4>
+<pre class="playground"><code class="language-rust edition2024">fn main() {
+    // 1. Создание
+    let mut v: Vec&lt;i32&gt; = Vec::new(); // Пустой вектор
+    let mut v2 = vec![1, 2, 3];      // С начальными значениями
+
+    // 2. Добавление элементов (обновление через расширение)
+    v.push(5);
+    v.push(6);
+
+    // 3. Изменение существующих элементов (обновление по индексу)
+    // Мы можем изменить значение, обратившись к нему по индексу
+    v2[1] = 10; 
+
+    println!("{:?}", v2); // Выведет: [1, 10, 3]
+}</code></pre>
+<h4 id="чтение-элементов"><a class="header" href="#чтение-элементов">Чтение элементов</a></h4>
+<p>Есть два способа получить значение: через индексацию или методом <code>get</code>.</p>
+<pre class="playground"><code class="language-rust edition2024">fn main() {
+    let v = vec![1, 2, 3, 4, 5];
+
+    // 1. Индексация (может вызвать панику, если индекса нет)
+    let third: &amp;i32 = &amp;v[2];
+    println!("Третий элемент: {}", third);
+
+    // 2. Метод get (возвращает Option&lt;&amp;T&gt;, безопасно)
+    match v.get(2) {
+        Some(third) =&gt; println!("Третий элемент: {}", third),
+        None =&gt; println!("Элемента с таким индексом нет."),
+    }
+}</code></pre>
+<h4 id="итерация-и-массовое-обновление"><a class="header" href="#итерация-и-массовое-обновление">Итерация и массовое обновление</a></h4>
+<p>Если нужно обновить все элементы вектора сразу, удобно использовать цикл с изменяемой ссылкой.</p>
+<pre class="playground"><code class="language-rust edition2024">fn main() {
+    let mut v = vec![100, 32, 57];
+
+    // Итерация по неизменяемым ссылкам
+    for i in &amp;v {
+        println!("{}", i);
+    }
+
+    // Итерация по изменяемым ссылкам (изменение значений)
+    for i in &amp;mut v {
+        // Разыменовываем i (*i), чтобы изменить значение в памяти
+        *i += 50;
+    }
+}</code></pre>
+<h3 id="строки-string"><a class="header" href="#строки-string">Строки (<code>String</code>)</a></h3>
+<p>Строка в Rust — это обертка над вектором байтов (<code>Vec&lt;u8&gt;</code>), которая гарантированно хранит корректный текст в кодировке UTF-8.</p>
+<p>Важно различать два типа строк:</p>
+<ol>
+<li><code>String</code> — расширяемая, мутабельная, владеющая строка (хранится в куче).</li>
+<li><code>&amp;str</code> (строковый срез) — неизменяемая ссылка на последовательность символов (часто хранится в самом бинарном файле или заимствует данные из <code>String</code>).</li>
+</ol>
+<h4 id="создание-и-изменение"><a class="header" href="#создание-и-изменение">Создание и изменение</a></h4>
+<pre class="playground"><code class="language-rust edition2024">fn main() {
+    // Создание из литерала
+    let s1 = String::from("initial contents");
+    let s2 = "initial contents".to_string();
+
+    // Обновление строки
+    let mut s = String::from("foo");
+    s.push_str("bar"); // добавление среза
+    s.push('!');       // добавление одного символа
+    println!("{}", s); // foobar!
+}</code></pre>
+<h4 id="конкатенация"><a class="header" href="#конкатенация">Конкатенация</a></h4>
+<pre class="playground"><code class="language-rust edition2024">fn main() {
+    let s1 = String::from("Hello, ");
+    let s2 = String::from("world!");
+    
+    // Использование оператора +
+    // Примечание: s1 перемещается и больше не может быть использована
+    let s3 = s1 + &amp;s2; 
+    
+    // Использование макроса format! (предпочтительнее для сложного форматирования)
+    // format! не забирает владение ни у одной из строк
+    let s1 = String::from("tic");
+    let s2 = String::from("tac");
+    let s3 = String::from("toe");
+    
+    let s = format!("{}-{}-{}", s1, s2, s3);
+}</code></pre>
+<p>Rust не поддерживает индексацию строк (например, s[0]), так как из-за UTF-8 один видимый символ может занимать несколько байт.</p>
+<h2 id="хеш-карта-hashmapk-v"><a class="header" href="#хеш-карта-hashmapk-v">Хеш-карта (<code>HashMap&lt;K, V&gt;</code>)</a></h2>
+<p>Хеш-карта хранит соответствие ключей типа <code>K</code> значениям типа <code>V</code> с использованием хеш-функции. Это полезно, когда нужно искать данные не по индексу (как в векторе), а по ключу любого типа.</p>
+<p>Для использования <code>HashMap</code> ее нужно импортировать из стандартной библиотеки.</p>
+<pre class="playground"><code class="language-rust edition2024">use std::collections::HashMap;
+
+fn main() {
+    let mut scores = HashMap::new();
+
+    // Вставка данных
+    scores.insert(String::from("Blue"), 10);
+    scores.insert(String::from("Yellow"), 50);
+
+    // Получение значения по ключу (возвращает Option&lt;&amp;V&gt;)
+    let team_name = String::from("Blue");
+    let score = scores.get(&amp;team_name); // Some(&amp;10)
+    
+    // Итерация по парам ключ-значение
+    for (key, value) in &amp;scores {
+        println!("{}: {}", key, value);
+    }
+}</code></pre>
+<h4 id="обновление-значений"><a class="header" href="#обновление-значений">Обновление значений</a></h4>
+<p>Поскольку каждый ключ может встречаться в карте только один раз, при вставке нужно решать, что делать, если ключ уже есть.</p>
+<pre class="playground"><code class="language-rust edition2024">use std::collections::HashMap;
+
+fn main() {
+    let mut scores = HashMap::new();
+    scores.insert(String::from("Blue"), 10);
+
+    // 1. Перезапись значения
+    scores.insert(String::from("Blue"), 25); // 10 заменится на 25
+
+    // 2. Вставка только если ключа нет (entry API)
+    scores.entry(String::from("Yellow")).or_insert(50);
+    scores.entry(String::from("Blue")).or_insert(50); // Не изменит значение, так как Blue уже есть
+
+    println!("{:?}", scores);
+}</code></pre>
 
                     </main>
 
