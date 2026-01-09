@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "rust";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-c037574f.js";
+            window.path_to_searchindex_js = "searchindex-b1300e72.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ec1eabcd.js"></script>
@@ -247,7 +247,14 @@ pub fn eat_at_restaurant() {
 }</code></pre>
 <h3 id="приватность-privacy"><a class="header" href="#приватность-privacy">Приватность (Privacy)</a></h3>
 <p>В Rust все элементы (функции, методы, структуры, модули) по умолчанию приватны. Родительские модули не могут использовать приватные элементы дочерних модулей, но дочерние модули могут использовать элементы своих предков.
-Используйте ключевое слово pub, чтобы сделать элемент публичным.</p>
+Используйте ключевое слово pub, чтобы сделать элемент публичным.
+Важно помнить, что поля структур по умолчанию приватны, даже если сама структура публична.</p>
+<p>Пример: <code>pub struct Point { pub x: i32, y: i32 }</code> — <code>x</code> публично, <code>y</code> приватно.</p>
+<h3 id="ключевые-слова-super-и-self-в-путях"><a class="header" href="#ключевые-слова-super-и-self-в-путях">Ключевые слова <code>super</code> и <code>self</code> в путях</a></h3>
+<ul>
+<li><code>super</code> позволяет ссылаться на родительский модуль (аналогично .. в файловых системах).</li>
+<li><code>self</code> ссылается на текущий модуль (полезно для явности)</li>
+</ul>
 <h3 id="использование-ключевого-слова-use"><a class="header" href="#использование-ключевого-слова-use">Использование ключевого слова <code>use</code></a></h3>
 <p>Чтобы не писать длинные пути каждый раз, можно «привнести» путь в область видимости.</p>
 <pre><code class="language-rust ignore">mod front_of_house {
@@ -279,6 +286,41 @@ fn main() {
     pub fn add_to_waitlist() {}
 }</code></pre>
 <p>Если нужно вынести <code>hosting</code> еще глубже, создаем папку <code>src/front_of_house/</code> и файл <code>src/front_of_house/hosting.rs</code>.</p>
+<h3 id="тесты-внутри-модулей"><a class="header" href="#тесты-внутри-модулей">Тесты внутри модулей</a></h3>
+<p>В Rust тесты обычно размещаются в отдельных файлах, но иногда удобно писать их прямо в модуле, чтобы они оставались рядом с кодом, который они проверяют.
+Для этого используется атрибут <code>#[cfg(test)]</code>, который компилятор обрабатывает только при сборке тестов (<code>cargo test</code>).</p>
+<pre class="playground"><code class="language-rust ignor edition2024"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/front_of_house.rs
+pub mod hosting {
+    pub fn add_to_waitlist() {
+        // реализация
+    }
+
+    #[cfg(test)]
+    mod tests {
+        // импортируем родительский модуль
+        use super::*;
+
+        #[test]
+        fn it_adds_to_waitlist() {
+            // Arrange
+            // Act
+            add_to_waitlist();
+            // Assert
+            // Здесь можно проверить состояние, если функция возвращает значение
+            assert!(true);
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<ul>
+<li><code>#[cfg(test)]</code> - делает модуль видимым только при запуске тестов.</li>
+<li><code>mod tests</code> - стандартное имя для тестового модуля, но можно использовать любое.</li>
+<li><code>use super::*;</code> - позволяет тестам обращаться к функциям и структурам родительского модуля.</li>
+<li><code>#[test]</code> - аннотация, указывающая, что функция является тестом.</li>
+<li><code>cargo test</code> - запускает все тесты во всех модулях, включая вложенные.</li>
+</ul>
 <h4 id="полезные-сокращения"><a class="header" href="#полезные-сокращения">Полезные сокращения</a></h4>
 <ul>
 <li><code>as</code>: создание псевдонима (например, use std::fmt::Result as FmtResult;).</li>
